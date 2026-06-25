@@ -1,7 +1,7 @@
 #include "ina226.h"
 #include <Wire.h>
 #include <INA226.h>
-
+#include <cmath>
 // A biblioteca do Rob Tillaart exige o endereço I2C
 INA226 ina226(0x44); 
 
@@ -73,7 +73,7 @@ DadosEnergia lerDadosINA226() {
     current_mA = 0.0;
     power_mW = 0.0;
   }
-  
+
   // Preencher struct DadosEnergia
   dados.tensao_V = busvoltage;
   dados.corrente_mA = current_mA;

@@ -26,6 +26,13 @@ const char* nomesEstados[] = {"LEVE (<1000mW)", "ESTAVEL (1000-1200mW)", "PICO (
 unsigned long tempoInicioPico = 0;
 bool emCicloDePico = false;
 
+// Variáveis globais partilhadas com o WebServer
+int dutyDissipacaoGlobal = 0;
+
+int getDutyDissipacao() {
+  return dutyDissipacaoGlobal;
+}
+
 // ==============================================================================
 // VARIÁVEIS DA MECÂNICA DE TRAVA
 // ==============================================================================
@@ -37,7 +44,7 @@ bool quedaConcluida = false; // Proteção para não ficar a ler o ultrassom em 
 int ultimoAnguloServo = -1;  // Memória do servo (Anti-Spam)
 
 String getEstadoSistema() {
-  return String(nomesFases[faseAtual]);
+  return String(nomesEstados[estadoAtual]);
 }
 
 void setup() {
@@ -179,6 +186,9 @@ void loop() {
       }
       break;
   }
+
+  // Atualiza a variável global para o webserver
+  dutyDissipacaoGlobal = dutyDissipacao;
 
   // 4. EXECUÇÃO DE COMANDOS DO MOTOR E DISSIPAÇÃO
   motorIBT2(constrain(dutyMotor, 0, 100), motorSobe);

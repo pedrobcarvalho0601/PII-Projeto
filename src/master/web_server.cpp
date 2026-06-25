@@ -12,6 +12,14 @@ WebServer server(80);
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASS;
 
+// Função de segurança para evitar erro NaN no JSON
+String formataValor(float valor) {
+  if (isnan(valor) || isinf(valor)) {
+    return "0.00";
+  }
+  return String(valor);
+}
+
 // Função para iniciar o servidor web e configurar as rotas
 void iniciarWebServer() { 
   if (!LittleFS.begin(true)) {
@@ -28,8 +36,6 @@ void iniciarWebServer() {
     WiFi.softAP(ssid, NULL, 1); 
   }
 
-
-  
   IPAddress IP = WiFi.softAPIP();
   Serial.println("------------------------------------");
   Serial.print("Rede criada: "); Serial.println(ssid);
@@ -44,17 +50,19 @@ void iniciarWebServer() {
     struct_message mini1 = getDadosMini1();
     struct_message mini2 = getDadosMini2();
     extern String getEstadoSistema();
+    extern int getDutyDissipacao(); // Importado do main.cpp
     
     String json = "{";
-    json += "\"v_master\":" + String(dados_master.tensao_V) + ",";
-    json += "\"c_master\":" + String(dados_master.corrente_mA) + ",";
-    json += "\"p_master\":" + String(dados_master.potencia_mW) + ",";
-    json += "\"v_mini1\":" + String(mini1.tensao_V) + ",";
-    json += "\"c_mini1\":" + String(mini1.corrente_mA) + ",";
-    json += "\"p_mini1\":" + String(mini1.potencia_mW) + ",";
-    json += "\"v_mini2\":" + String(mini2.tensao_V) + ",";
-    json += "\"c_mini2\":" + String(mini2.corrente_mA) + ",";
-    json += "\"p_mini2\":" + String(mini2.potencia_mW) + ",";
+    json += "\"v_master\":" + formataValor(dados_master.tensao_V) + ",";
+    json += "\"c_master\":" + formataValor(dados_master.corrente_mA) + ",";
+    json += "\"p_master\":" + formataValor(dados_master.potencia_mW) + ",";
+    json += "\"v_mini1\":" + formataValor(mini1.tensao_V) + ",";
+    json += "\"c_mini1\":" + formataValor(mini1.corrente_mA) + ",";
+    json += "\"p_mini1\":" + formataValor(mini1.potencia_mW) + ",";
+    json += "\"v_mini2\":" + formataValor(mini2.tensao_V) + ",";
+    json += "\"c_mini2\":" + formataValor(mini2.corrente_mA) + ",";
+    json += "\"p_mini2\":" + formataValor(mini2.potencia_mW) + ",";
+    json += "\"dissipacao\":" + String(getDutyDissipacao()) + ",";
     json += "\"estado\":\"" + getEstadoSistema() + "\"";
     json += "}";
     
